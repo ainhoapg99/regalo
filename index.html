@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Un regalo para ti, mamá</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=Playfair+Display:ital,wght@0,600;1,500&family=Poppins:wght@400;600&display=swap">
+<style>
+  :root { --cream:#FBF5EA; --ink:#3B2A24; --terra:#C9785D; --gold:#C9A45C; --rose:#E3B5A4; }
+  * { box-sizing:border-box; }
+  html,body { margin:0; min-height:100%; }
+  body { background: radial-gradient(circle at 50% 20%, #FFF8EE 0%, #F3E4D2 60%, #E9D3BC 100%); color:var(--ink);
+         font-family:'Poppins',sans-serif; display:flex; align-items:center; justify-content:center; min-height:100vh; overflow-x:hidden; }
+  .card { width:min(92vw,440px); text-align:center; padding:28px 24px 34px; }
+  h1 { font-family:'Playfair Display',serif; font-style:italic; font-weight:500; font-size:34px; margin:12px 0 6px; }
+  .hand { font-family:'Caveat',cursive; font-size:26px; color:var(--terra); margin:0 0 22px; }
+  .lock { width:120px; height:120px; margin:0 auto; transition: transform .6s cubic-bezier(.3,1.6,.5,1); }
+  .lock.shake { animation: shake .5s; }
+  @keyframes shake { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-10px) rotate(-6deg)} 40%{transform:translateX(10px) rotate(6deg)} 60%{transform:translateX(-7px)} 80%{transform:translateX(7px)} }
+  form { display:flex; flex-direction:column; gap:12px; margin-top:6px; }
+  input { font-family:'Poppins',sans-serif; font-size:22px; text-align:center; letter-spacing:4px; padding:14px; border-radius:16px;
+          border:2px solid var(--gold); background:#fff; color:var(--ink); outline:none; text-transform:uppercase; }
+  input:focus { border-color:var(--terra); box-shadow:0 0 0 4px rgba(201,120,93,.18); }
+  button { font-family:'Poppins',sans-serif; font-weight:600; font-size:18px; padding:14px; border:none; border-radius:16px;
+           background:var(--terra); color:#fff; cursor:pointer; box-shadow:0 6px 16px rgba(201,120,93,.35); }
+  button:active { transform:translateY(1px); }
+  .msg { min-height:28px; font-family:'Caveat',cursive; font-size:24px; color:var(--terra); margin-top:10px; }
+  #reveal { display:none; }
+  .ticket { position:relative; margin:18px auto; width:100%; background:#2D201C; color:#FBF5EA; border-radius:22px; padding:20px 22px;
+            text-align:left; box-shadow:0 14px 30px rgba(40,25,20,.35); opacity:0; transform:translateY(60px) rotate(-3deg); }
+  .ticket.show { animation: in 1s cubic-bezier(.2,1.4,.4,1) forwards; }
+  .ticket:nth-child(2).show { animation-delay:.35s; }
+  @keyframes in { to { opacity:1; transform:translateY(0) rotate(var(--r,-2deg)); } }
+  .ticket::before { content:""; position:absolute; inset:8px; border:2px solid var(--gold); border-radius:16px; pointer-events:none; }
+  .t-k { font-size:12px; letter-spacing:2px; color:var(--gold); font-weight:600; }
+  .t-n { font-family:'Playfair Display',serif; font-size:30px; font-weight:600; margin:4px 0 0; }
+  .t-g { font-family:'Playfair Display',serif; font-style:italic; color:var(--rose); font-size:18px; margin-bottom:10px; }
+  .t-d { font-size:14px; line-height:1.6; }
+  .t-num { position:absolute; right:22px; top:18px; text-align:center; font-family:'Playfair Display',serif; font-style:italic; font-size:44px; line-height:1; }
+  .t-num small { display:block; font-family:'Poppins'; font-style:normal; font-size:11px; color:var(--gold); letter-spacing:1px; }
+  .big { font-family:'Playfair Display',serif; font-style:italic; font-size:32px; margin:6px 0 4px; }
+  .note { font-family:'Caveat',cursive; font-size:27px; line-height:1.25; margin:18px 4px 0; }
+  .sign { font-family:'Caveat',cursive; font-size:30px; color:var(--terra); margin-top:10px; }
+  .music { display:inline-block; margin-top:14px; padding:14px 22px; border-radius:16px; background:#2D201C; color:#FBF5EA; text-decoration:none; font-weight:600; box-shadow:0 6px 16px rgba(40,25,20,.3); }
+  canvas { position:fixed; inset:0; pointer-events:none; width:100vw; height:100vh; }
+</style>
+</head>
+<body>
+<canvas id="fx"></canvas>
+<main class="card">
+  <section id="gate">
+    <svg class="lock" id="lock" viewBox="0 0 120 120" aria-hidden="true">
+      <path d="M38 54 V40 a22 22 0 0 1 44 0 V54" fill="none" stroke="#3B2A24" stroke-width="8" stroke-linecap="round" id="shackle"/>
+      <rect x="26" y="52" width="68" height="56" rx="12" fill="#C9785D"/>
+      <circle cx="60" cy="76" r="8" fill="#FBF5EA"/><rect x="56" y="80" width="8" height="16" rx="3" fill="#FBF5EA"/>
+    </svg>
+    <h1>Un regalo para ti, mamá</h1>
+    <p class="hand">Está cerrado con contraseña… y Ainhoa la tiene 😉</p>
+    <form id="f" autocomplete="off">
+      <input id="pw" placeholder="CONTRASEÑA" aria-label="Contraseña" autocapitalize="characters" spellcheck="false">
+      <button type="submit">Abrir mi regalo</button>
+    </form>
+    <div class="msg" id="msg"></div>
+  </section>
+  <section id="reveal" aria-live="polite">
+    <div class="big" id="r-title"></div>
+    <div class="hand" id="r-sub" style="margin-bottom:8px"></div>
+    <div id="tickets"></div>
+    <p class="note" id="r-msg"></p>
+    <p class="sign" id="r-sign"></p>
+    <div class="hand" id="r-music-txt" style="margin:22px 0 8px"></div>
+    <div id="r-music"></div>
+  </section>
+</main>
+<script>
+const ENC = {"salt": "5dG/KmyanXlDlpu9zmuBAg==", "iv": "DhkVU/awagsUiOIM", "ct": "gS/MObWZFt/sp8xaObEaAlLJ0qgBmdmBv7B6rqOy2RbCdHBsZPVVm83q4ftITaKY1GdROutuvyRKBGmYtWs26V2aoorOPmCOksDRJXtMqXI2wio3YpZHQ69NIJc8YUHttb3B8ryl8jbgdO1Yfn+agihhGMdSCDIZPg3brKkTYshUG7p3EwE+0BbfuEaOrvWH9YHpwLg1ffRahb2ziEud9stFfw4+HwF5wP1qrQYdefkd5VR4H7RYX0b7mkbniWkRBCjO5eSLQV+9wbw4ctZK3okCe3XZD0+QOM6RmaOraENqIkAQQOybhoBGZRrrz7/XxXXHYss+ym5V7IrX2LwJXXqo0NDCkOIe4LjaNeoNzpjETg5Wyz5ux0hVsRm5I9O7VdEuLS37/UHwPPG27xc4PElzfoZ8mvr08bv05/W5Y0q/UWVnDUUy+rhJf6LmrBJeZK0DN1FyQS42INe7c3/gl1DTIQfWGN9S/LA8L+oGbkomtfUUqKb/THPNv3/w5fOUNDPztlA+l0UQrZcp2GawMMNvvvt0OJGU90kRfgrXee9QIviekVFEOccXRtxarg2f442bx+hyTL9Tm8l0nuBQJ6sPylr3m3PMGztqT3yR45WrPVpEI6czMD+J06kovkubPqYkun57kwlE0vFC01/K+THEm1qnP10xkFjKBDUYWCGWk4/V6VCCol+jDKeMy4spB92XwmqB/6ZNVsXVLEJvlMSXh8gGC0i+gcjh193sAGlPydevdguzLCg/OW+OL+kjrTWWADRcEnyLmM8HVNImqdkLW2oDNvcisR4aDcmu+QGq/UEweo3+WrVGvksNQWNygEmGYEQe5hE93V0XKKuo0fb/jRnp"};
+const b64 = s => Uint8Array.from(atob(s), c => c.charCodeAt(0));
+function norm(s) {
+  return s.normalize('NFD').replace(/[̀-ͯ]/g, '').toUpperCase().replace(/[^A-Z0-9]/g, '');
+}
+async function decrypt(pw) {
+  const base = await crypto.subtle.importKey('raw', new TextEncoder().encode(pw), 'PBKDF2', false, ['deriveKey']);
+  const key = await crypto.subtle.deriveKey({name:'PBKDF2', salt:b64(ENC.salt), iterations:150000, hash:'SHA-256'},
+                                            base, {name:'AES-GCM', length:256}, false, ['decrypt']);
+  const pt = await crypto.subtle.decrypt({name:'AES-GCM', iv:b64(ENC.iv)}, key, b64(ENC.ct));
+  return JSON.parse(new TextDecoder().decode(pt));
+}
+function chime() {
+  try {
+    const ac = new (window.AudioContext || window.webkitAudioContext)();
+    [784, 988, 1175, 1568].forEach((f, i) => {
+      const o = ac.createOscillator(), g = ac.createGain();
+      o.type = 'sine'; o.frequency.value = f;
+      g.gain.setValueAtTime(0, ac.currentTime + i * .12);
+      g.gain.linearRampToValueAtTime(.18, ac.currentTime + i * .12 + .02);
+      g.gain.exponentialRampToValueAtTime(.001, ac.currentTime + i * .12 + 1.4);
+      o.connect(g).connect(ac.destination); o.start(ac.currentTime + i * .12); o.stop(ac.currentTime + i * .12 + 1.5);
+    });
+  } catch (e) {}
+}
+function confetti() {
+  const c = document.getElementById('fx'), x = c.getContext('2d');
+  const dpr = window.devicePixelRatio || 1;
+  c.width = innerWidth * dpr; c.height = innerHeight * dpr; x.scale(dpr, dpr);
+  const cols = ['#C9785D','#C9A45C','#E3B5A4','#9CAF94','#7E9BB5'];
+  const P = Array.from({length:160}, () => ({x:Math.random()*innerWidth, y:-20-Math.random()*innerHeight*.6,
+    vy:2+Math.random()*3, vx:-1+Math.random()*2, r:Math.random()*6.28, vr:-.2+Math.random()*.4, s:6+Math.random()*8, c:cols[Math.floor(Math.random()*5)]}));
+  let t0 = performance.now();
+  (function loop(now) {
+    x.clearRect(0, 0, innerWidth, innerHeight);
+    P.forEach(p => { p.x += p.vx; p.y += p.vy; p.r += p.vr;
+      x.save(); x.translate(p.x, p.y); x.rotate(p.r); x.fillStyle = p.c; x.fillRect(-p.s/2, -p.s/4, p.s, p.s/2); x.restore(); });
+    if (now - t0 < 7000) requestAnimationFrame(loop); else x.clearRect(0, 0, innerWidth, innerHeight);
+  })(t0);
+}
+function ticket(d, n) {
+  const el = document.createElement('div');
+  el.className = 'ticket'; el.style.setProperty('--r', n === 1 ? '-2deg' : '2deg');
+  const parts = [['t-k','ENTRADA · CONCIERTO'],['t-n', d.artista],['t-g', d.gira]];
+  parts.forEach(([c, txt]) => { const p = document.createElement('div'); p.className = c; p.textContent = txt; el.appendChild(p); });
+  const det = document.createElement('div'); det.className = 't-d';
+  [d.fecha, d.lugar, d.puertas + ' · ' + d.zona].forEach(l => { const s = document.createElement('div'); s.textContent = l; det.appendChild(s); });
+  el.appendChild(det);
+  const num = document.createElement('div'); num.className = 't-num'; num.textContent = n;
+  const sm = document.createElement('small'); sm.textContent = 'DE 2'; num.appendChild(sm); el.appendChild(num);
+  return el;
+}
+document.getElementById('f').addEventListener('submit', async (ev) => {
+  ev.preventDefault();
+  const msg = document.getElementById('msg'), lock = document.getElementById('lock');
+  const pw = norm(document.getElementById('pw').value);
+  msg.textContent = 'Abriendo…';
+  try {
+    const d = await decrypt(pw);
+    chime();
+    document.getElementById('shackle').setAttribute('d', 'M38 54 V40 a22 22 0 0 1 44 0 V30');
+    lock.style.transform = 'scale(1.15) rotate(-8deg)';
+    setTimeout(() => {
+      document.getElementById('gate').style.display = 'none';
+      const r = document.getElementById('reveal'); r.style.display = 'block';
+      document.getElementById('r-title').textContent = d.titulo;
+      document.getElementById('r-sub').textContent = d.sub;
+      const tk = document.getElementById('tickets');
+      [1, 2].forEach(n => tk.appendChild(ticket(d, n)));
+      requestAnimationFrame(() => tk.querySelectorAll('.ticket').forEach(t => t.classList.add('show')));
+      document.getElementById('r-msg').textContent = d.mensaje;
+      document.getElementById('r-sign').textContent = d.firma + ' ❤️';
+      document.getElementById('r-music-txt').textContent = d.musica_txt;
+      const fr = document.createElement('iframe');
+      fr.src = d.mx; fr.width = '100%'; fr.height = '152'; fr.style.border = '0'; fr.style.borderRadius = '14px';
+      fr.allow = 'autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture'; fr.loading = 'lazy';
+      document.getElementById('r-music').appendChild(fr);
+      confetti();
+    }, 700);
+  } catch (e) {
+    msg.textContent = 'Esa no es… ¡pregúntale a Ainhoa! 😉';
+    lock.classList.remove('shake'); void lock.offsetWidth; lock.classList.add('shake');
+  }
+});
+</script>
+</body>
+</html>
